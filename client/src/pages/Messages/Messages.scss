@@ -1,0 +1,162 @@
+.messages-page {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    .container {
+        width: 75%;
+        margin: auto;
+        padding: 50px 0px;
+
+        .loader {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+        }
+
+        .title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+
+            h1 {
+                font-size: 28px;
+                color: #222325;
+                font-weight: 600;
+            }
+        }
+
+        /* ИСПРАВЛЕНО ДЛЯ ВКР: Современная блочная сетка списка диалогов (вместо старой таблицы) */
+        .conversations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; // Расстояние между диалогами
+            width: 100%;
+
+            .conversation-item {
+                display: flex;
+                align-items: center;
+                padding: 16px 20px;
+                background-color: #ffffff;
+                border: 1px solid #e4e3e3;
+                border-radius: 8px;
+                text-decoration: none;
+                color: inherit;
+                transition: all 0.2s ease;
+                cursor: pointer;
+
+                /* ИНТЕРАКТИВНОЕ ПОДЦВЕЧИВАНИЕ ПРИ НАВЕДЕНИИ КУРСОРА */
+                &:hover {
+                    background-color: #f7f7f7;
+                    border-color: #dcdcdc;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                }
+
+                /* Мягкая подсветка для непрочитанных диалогов */
+                &.unread {
+                    background-color: #f1fdf7;
+                    border-color: #ccefdc;
+
+                    &:hover {
+                        background-color: #e6f9ee;
+                    }
+                }
+
+                /* Блок аватарки собеседника */
+                .avatar-block {
+                    margin-right: 18px;
+                    display: flex;
+                    align-items: center;
+
+                    img {
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                        border: 1px solid #e0e0e0;
+                    }
+                }
+
+                /* Центральный информационный блок */
+                .info-block {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                    min-width: 0; // Важно для корректной работы обрезки длинного текста
+
+                    .info-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        gap: 15px;
+
+                        .username {
+                            font-weight: 600;
+                            font-size: 16px;
+                            color: #222325;
+                        }
+
+                        .date {
+                            font-size: 12px;
+                            color: #999999;
+                            white-space: nowrap;
+                        }
+                    }
+
+                    /* Вывод строковых значений с защитой от переполнения */
+                    .last-message {
+                        font-size: 14px;
+                        color: #62646a;
+                        margin: 0;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis; // Аккуратное троеточие в конце строки
+                    }
+                }
+
+                /* Правый блок: Маркер нового сообщения */
+                .status-block {
+                    margin-left: 20px;
+                    display: flex;
+                    align-items: center;
+
+                    .unread-dot {
+                        width: 10px;
+                        height: 10px;
+                        background-color: var(--green-color, #1dbf73);
+                        border-radius: 50%;
+                        display: inline-block;
+                    }
+                }
+            }
+
+            .empty-messages {
+                text-align: center;
+                padding: 40px;
+                color: #74767e;
+                font-size: 16px;
+                background-color: #fafafa;
+                border: 1px dashed #e4e3e3;
+                border-radius: 8px;
+            }
+        }
+
+        @media screen and (max-width: 900px) {
+            width: 90%;
+            
+            .conversations-list .conversation-item {
+                padding: 12px 15px;
+                
+                .avatar-block img {
+                    width: 42px;
+                    height: 42px;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,234 @@
+.pay-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: 60px 0;
+
+  .pay-billing-card {
+    width: 600px;
+    background: #ffffff;
+    border: 1px solid #e4e3e3;
+    border-radius: 12px;
+    padding: 35px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+
+    @media screen and (max-width: 900px) {
+      width: 90%;
+      padding: 20px;
+    }
+
+    .billing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+
+      h2 {
+        font-size: 22px;
+        color: #222325;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .wkr-indicator {
+        font-size: 12px;
+        background-color: #fff1f0;
+        color: #f5222d;
+        padding: 4px 10px;
+        border-radius: 20px;
+        border: 1px solid #ffa39e;
+        font-weight: 500;
+      }
+    }
+
+    .billing-info-text {
+      font-size: 14px;
+      color: #74767e;
+      line-height: 1.5;
+      margin-bottom: 30px;
+    }
+
+    .payment-wkr-form {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+
+      .bank-card-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        width: 100%;
+
+        .card-side {
+          width: 400px;
+          height: 240px;
+          border-radius: 14px;
+          padding: 24px;
+          position: relative;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+          box-sizing: border-box;
+
+          @media screen and (max-width: 480px) {
+            width: 100%;
+            height: 220px;
+            padding: 15px;
+          }
+
+          label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+          }
+
+          input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            background: #ffffff;
+            color: #222325;
+            outline: none;
+
+            &:focus {
+              border-color: #1dbf73;
+            }
+          }
+        }
+
+        /* Обновленная односторонняя лицевая карточка */
+        .front {
+          background: linear-gradient(135deg, #2c3e50, #3498db);
+          color: #ffffff;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+
+          label { color: rgba(255, 255, 255, 0.7); }
+          input { 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            letter-spacing: 1px;
+            &:focus { border-color: #1dbf73; }
+          }
+
+          .card-chip-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .emv-chip {
+              width: 45px;
+              height: 32px;
+              background: linear-gradient(135deg, #f1c40f, #f39c12);
+              border-radius: 6px;
+            }
+
+            .card-logo-type {
+              font-weight: 900;
+              font-style: italic;
+              font-size: 18px;
+              letter-spacing: 0.5px;
+            }
+          }
+
+          /* ИСПРАВЛЕНО ДЛЯ ВКР: Нижний ряд поделен поровну между сроком действия и CVC */
+          .card-footer-row {
+            display: flex;
+            gap: 20px;
+
+            .expiry-field, .cvc-field { 
+              width: 50%; 
+            }
+
+            .cvc-field input {
+              text-align: center;
+              letter-spacing: 4px;
+            }
+          }
+        }
+      }
+
+      .payment-action-submit-btn {
+        width: 100%;
+        padding: 16px;
+        background-color: #1dbf73;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #19a463;
+        }
+      }
+    }
+  }
+}
+
+/* Экран анимации процессинга банка */
+.pay-processing-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 60vh;
+  background-color: #f8f9fa;
+
+  .processing-card {
+    background: #ffffff;
+    border: 1px solid #e4e3e3;
+    border-radius: 12px;
+    padding: 50px;
+    text-align: center;
+    width: 480px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+
+    .payment-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #1dbf73;
+      border-radius: 50%;
+      animation: spinWkr 1s linear infinite;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: #222325;
+      margin: 0;
+    }
+
+    .step-text {
+      font-size: 15px;
+      color: #62646a;
+      min-height: 44px;
+      line-height: 1.5;
+    }
+
+    .wkr-badge {
+      font-size: 11px;
+      color: #999;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+@keyframes spinWkr {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

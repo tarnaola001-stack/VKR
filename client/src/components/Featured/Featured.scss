@@ -1,0 +1,117 @@
+.featured {
+  height: 600px; /* Фиксированная высота оригинального баннера */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  /* Картинка аппаратно растягивается на 100% ширины и высоты баннера */
+  background-image: url('/media/hero.png');
+  background-size: cover; /* Заполняет ВСЁ пространство баннера без зеленых зазоров */
+  background-repeat: no-repeat;
+  /* Сдвигаем фокус картинки вправо, чтобы клавиатура и блокнот красиво вошли в экран */
+  background-position: right center; 
+  
+  color: white;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0px !important;
+  position: relative;
+
+  /* ИСПРАВЛЕНО ДЛЯ ВКР: Блок зеленого градиента &::before полностью удален, чтобы картинка была чистой */
+
+  .container {
+    width: 1400px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 100%;
+    z-index: 5; /* Выталкивает весь текстовый контент НАД фоном */
+
+    @media screen and (max-width: 1400px) {
+      width: 100%;
+      padding: 0 20px;
+    }
+  }
+
+  .left {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    position: relative;
+    z-index: 10;
+
+h1 {
+  font-size: 48px;
+  line-height: 56px;
+  font-weight: 700; /* Жирный шрифт для обычных слов */
+  margin: 0;
+  max-width: 520px;
+  width: 100%;
+
+  /* ИСПРАВЛЕНО ДЛЯ ВКР: Сброс жирности для создания изящного оригинального контраста */
+  i {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-weight: normal !important; /* Убирает жирность 700, делая буквы тоньше */
+    font-style: italic !important;
+    display: inline-block;
+  }
+}
+
+
+    .search {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: white;
+      border-radius: 5px;
+      width: 650px; /* Фиксированная ширина строки поиска */
+      overflow: hidden;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+
+      @media screen and (max-width: 768px) {
+        width: 100%;
+      }
+
+      .searchInput {
+        display: flex;
+        align-items: center;
+        flex: 1;
+
+        input {
+          border: none;
+          outline: none;
+          width: 100%;
+          height: 52px;
+          font-size: 16px;
+          color: #222325;
+          /* Внутренний отступ для надписи "Попробуйте..." */
+          padding-left: 20px; 
+          box-sizing: border-box;
+          
+          &::placeholder {
+            color: #999;
+          }
+        }
+      }
+
+      button {
+        width: 120px;
+        height: 52px;
+        border: none;
+        background-color: var(--green-color, #1dbf73);
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 0 5px 5px 0;
+        transition: background-color 0.2s ease;
+        position: relative;
+        z-index: 15;
+
+        &:hover {
+          background-color: #1aa663;
+        }
+      }
+    }
+  }
+}

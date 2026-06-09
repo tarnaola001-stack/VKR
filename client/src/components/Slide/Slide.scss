@@ -1,0 +1,14 @@
+.slide-Container {
+  /* ИСПРАВЛЕНО ДЛЯ ВКР: Убираем 100px жесткого паддинга, чтобы слайдер не раздувало во все стороны */
+  padding: 10px 0; 
+  width: 95%;
+  margin: auto;
+  position: relative;
+
+  // Стилизация стрелок навигации slick-слайдера, чтобы они отображались корректно
+  .slick-prev, .slick-next {
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+  }
+}

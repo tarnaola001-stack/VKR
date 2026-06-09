@@ -1,0 +1,75 @@
+.review {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; // Сделали шаг чуть компактнее
+    margin: 20px 0px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f1f1; // Добавили легкую разделительную линию между отзывами
+
+    .user {
+        display: flex;
+        align-items: center;
+        gap: 12px; // Фиксированный отступ от фото до текста
+
+        /* ИСПРАВЛЕНО ДЛЯ ВКР: Жесткая фиксация пропорций аватара от искажений */
+        .review-avatar {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+            object-fit: cover; // Мягко обрезает картинку по центру, запрещая ей плыть
+            flex-shrink: 0; // Запрещает флекс-контейнеру сжимать аватарку в овал
+            border: 1px solid #e0e0e0;
+        }
+
+        .info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            span {
+                font-weight: 500;
+                color: #222325;
+            }
+        }
+
+        .country {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: gray;
+            font-size: 13px;
+
+            img {
+                width: 18px; // Сделали флаги стран более аккуратными
+                height: auto;
+            }
+        }
+    }
+
+    .stars {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        img {
+            height: 14px;
+            width: 14px;
+        }
+
+        span {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffc108;
+            margin-left: 2px;
+        }
+    }
+
+    p {
+        font-size: 15px;
+        color: #62646a;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* ИСПРАВЛЕНО ДЛЯ ВКР: Стили удаленного блока .helpful полностью стерты */
+}

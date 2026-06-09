@@ -1,0 +1,66 @@
+.add-review-box {
+  margin-top: 20px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e4e4e4;
+
+  h3 { font-size: 16px; margin-bottom: 15px; color: #404145; }
+  
+  .addForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e4e4e4;
+      border-radius: 4px;
+      font-family: inherit;
+      resize: none;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #1dbf73;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      width: max-content;
+      align-self: flex-end;
+      &:hover { background-color: #19a463; }
+    }
+  }
+
+  .interactive-stars-rating {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .rating-label { font-size: 13px; font-weight: 600; color: #404145; }
+
+    .stars-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .interactive-star-item {
+        font-size: 24px;
+        color: #e4e5e9;
+        cursor: pointer;
+        transition: color 0.1s ease, transform 0.1s ease;
+        user-select: none;
+
+        &.active { color: #ffb33e; text-shadow: 0 0 2px rgba(255, 179, 62, 0.3); }
+        &:hover { transform: scale(1.15); }
+      }
+
+      .rating-number-badge { font-size: 13px; font-weight: 700; color: #74767e; margin-left: 8px; }
+    }
+  }
+}

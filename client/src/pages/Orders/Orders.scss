@@ -1,0 +1,121 @@
+.orders {
+  display: flex;
+  justify-content: center;
+  background-color: #f9f9f9;
+  min-height: 80vh;
+
+  .loader {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .container {
+    width: 85%;
+    margin: auto;
+    padding: 50px 0px;
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+
+      h1 {
+        font-size: 28px;
+        color: #222325;
+        font-weight: 600;
+      }
+
+      // ИСПРАВЛЕНО ДЛЯ ВКР: Закругление кнопки "Создать услугу" в тон кнопке в чате
+      button, .create-gig-btn {
+        background-color: var(--green-color, #1dbf73);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px; // Плавное изящное закругление
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: #19a463;
+        }
+      }
+    }
+
+    // ИСПРАВЛЕНО ДЛЯ ВКР: Полноценное выравнивание текста и элементов строго по центру колонок
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      border: 1px solid #e4e3e3;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+
+      tr {
+        border-bottom: 1px solid #eeeeee;
+
+        th, td {
+          padding: 16px;
+          text-align: center; // Центрирование всех данных по колонкам
+          vertical-align: middle;
+        }
+
+        th {
+          background-color: #f1f1f1;
+          color: #404145;
+          font-weight: 600;
+          font-size: 15px;
+        }
+
+        td {
+          color: #62646a;
+          font-size: 15px;
+
+          // Изображение обложки в строке
+          img.img {
+            width: 80px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            display: block;
+            margin: 0 auto; // Центрирование картинки
+          }
+
+          // Иконка чата "Связаться"
+          img.message {
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: block;
+            margin: 0 auto; // Центрирование иконки
+
+            &:hover {
+              transform: scale(1.1);
+            }
+          }
+        }
+
+        &:nth-child(even) {
+          background-color: #fafafa;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 900px) {
+    .container {
+      width: 95%;
+      overflow-x: auto;
+    }
+  }
+}

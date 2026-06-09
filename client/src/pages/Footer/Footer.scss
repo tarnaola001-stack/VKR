@@ -1,0 +1,98 @@
+.footer {
+    display: flex;
+    justify-content: center;
+    color: #999;
+    margin: 50px 0;
+
+    img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .container {
+        width: 95%;
+        margin: auto;
+
+        // ВЕРХНЯЯ СЕКЦИЯ .top УСПЕШНО УДАЛЕНА
+
+        hr {
+            width: 100%;
+            border: .5px solid rgb(228, 227, 227);
+            margin: 0 0 10px 0; // Добавлен небольшой нижний отступ для линии
+        }
+
+        .bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            
+            .left {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+
+                h2 {
+                    color: #404145;
+                    font-size: 24px;
+                    font-weight: 900;
+                    letter-spacing: -0.5px;
+                    margin: 0;
+
+                    span {
+                        color: var(--green-color, #1dbf73); // Зеленая точка на конце логотипа
+                    }
+                }
+                
+                span {
+                    font-size: 13px;
+                    color: #74767e;
+                    font-weight: 500;
+                }
+            }
+
+            .right {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 30px;
+
+                .social {
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+
+                    img {
+                        cursor: default; // ИСПРАВЛЕНО: Стрелка вместо клика, пока нет ссылок
+                        opacity: 0.8;
+                        transition: opacity 0.2s ease;
+
+                        &:hover {
+                            opacity: 1;
+                        }
+                    }
+                }
+
+                // ИСПРАВЛЕНО: Название класса и отключение кликабельного курсора для диплома
+                .link-static {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    cursor: default; // Обычный курсор-стрелка
+
+                    span {
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: #74767e;
+                    }
+                }
+            }
+
+            @media screen and (max-width: 900px) {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+        }
+    }
+}
