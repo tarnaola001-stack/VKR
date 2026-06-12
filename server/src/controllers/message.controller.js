@@ -1,78 +1,99 @@
 const { Message, Conversation } = require('../models');
 
 const createMessage = async (request, response) => {
-    const { conversationID, description } = request.body;
+  const { conversationID, description } = request.body;
+  try {
+    const message = new Message({
+      conversationID,
+      userID: request.userID,
+      description,
+      isRead: false // Новое сообщение всегда создается непрочитанным
+    });
+    await message.save();
 
-    try {
-        const message = new Message({
-            conversationID,
-            userID: request.userID,
-            description
-        });
-
-        await message.save();
-
-        // ИСПРАВЛЕНО ДЛЯ ВКР: Синхронизировано поле поиска (id вместо conversationID) для точного обновления превью чата
-        await Conversation.findOneAndUpdate(
-            { id: conversationID }, 
-            {
-                $set: {
-                    // Тот, кто отправил сообщение, автоматически прочитал его
-                    readBySeller: request.isSeller,
-                    readByBuyer: !request.isSeller,
-                    lastMessage: description
-                }
-            }, 
-            { new: true }
-        );
-
-        return response.status(201).send(message);
+    // Находим диалог, чтобы определить, кем в нем является отправитель сообщения
+    const currentConv = await Conversation.findOne({ conversationID });
+    if (!currentConv) {
+      return response.status(404).send({ error: true, message: "Чат не найден" });
     }
-    catch ({ message, status = 500 }) {
-        return response.status(status).send({
-            error: true,
-            message
-        });
-    }
+
+    const isSenderSeller = currentConv.sellerID.toString() === request.userID;
+
+    // Собеседник получает статус unread, а отправитель - read
+    await Conversation.findOneAndUpdate(
+      { conversationID: conversationID }, 
+      {
+        $set: {
+          readBySeller: isSenderSeller,      // Для продавца прочитано, если он сам автор
+          readByBuyer: !isSenderSeller,     // Для покупателя прочитано, если он сам автор
+          lastMessage: description
+        }
+      }, 
+      { new: true }
+    );
+
+    return response.status(201).send(message);
+  }
+  catch (error) {
+    return response.status(500).send({
+      error: true,
+      message: error.message || "Ошибка отправки сообщения"
+    });
+  }
 };
 
 const getMessages = async (request, response) => {
-    const { conversationID } = request.params;
-    try {
-        // Запрашиваем историю сообщений и подтягиваем данные отправителя
-        const messages = await Message.find({ conversationID }).populate('userID', 'username image email img isSeller');
+  const { conversationID } = request.params;
+  try {
+    // ИСПРАВЛЕНО КРИТИЧЕСКИЙ БАГ СИНХРОНИЗАЦИИ: 
+    // Как только пользователь запрашивает сообщения чата, помечаем все входящие письма от собеседника как прочитанные в MongoDB
+    await Message.updateMany(
+      { 
+        conversationID, 
+        userID: { $ne: request.userID } // Находим только чужие сообщения
+      },
+      { 
+        $set: { isRead: true } 
+      }
+    );
 
-        // ИСПРАВЛЕНО ДЛЯ ВКР: Защита от поврежденных связей в СУБД MongoDB Atlas
-        const safeMessages = messages.map(msg => {
-            const doc = msg.toObject ? msg.toObject() : msg;
-            if (!doc.userID) {
-                doc.userID = { _id: "deleted", username: "Пользователь", image: "/media/noavatar.png", img: "/media/noavatar.png" };
-            }
-            return doc;
-        });
+    // Подгружаем обновленный массив сообщений для отправки на фронтенд
+    const messages = await Message.find({ conversationID }).populate('userID', 'username image email img isSeller');
+    
+    const safeMessages = messages.map(msg => {
+      const doc = msg.toObject ? msg.toObject() : msg;
+      if (!doc.userID) {
+        doc.userID = { _id: "deleted", username: "Пользователь", image: "/media/noavatar.png", img: "/media/noavatar.png" };
+      }
+      return doc;
+    });
 
-        // ИСПРАВЛЕНО ДЛЯ ВКР: Логика прочтения диалога при его открытии пользователем (Включение двойных галочек)
-        await Conversation.findOneAndUpdate(
-            { id: conversationID },
-            {
-                $set: {
-                    // Если зашел исполнитель — помечаем прочитанным исполнителем, если заказчик — заказчиком
-                    ...(request.isSeller ? { readBySeller: true } : { readByBuyer: true })
-                }
-            }
-        );
+    const currentConv = await Conversation.findOne({ conversationID });
+    if (currentConv) {
+      const isUserSeller = currentConv.sellerID.toString() === request.userID;
 
-        return response.status(200).send(safeMessages);
+      // Гасим общий маркер непрочитанности для всей комнаты чата
+      await Conversation.findOneAndUpdate(
+        { conversationID: conversationID },
+        {
+          $set: {
+            ...(isUserSeller ? { readBySeller: true } : { readByBuyer: true })
+          }
+        }
+      );
     }
-    catch ({ message, status = 500 }) {
-        return response.status(status).send({
-            error: true,
-            message
-        });
-    }
+
+    return response.status(200).send(safeMessages);
+  }
+  catch (error) {
+    return response.status(500).send({
+      error: true,
+      message: error.message || "Ошибка загрузки сообщений"
+    });
+  }
 };
 
 module.exports = {
-    createMessage,
-    getMessages
+  createMessage,
+  getMessages
 };

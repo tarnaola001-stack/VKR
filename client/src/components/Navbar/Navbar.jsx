@@ -38,17 +38,19 @@ const Navbar = () => {
     })();
   }, [setUser]);
 
-  // Запрос диалогов для вычисления счетчика непрочитанных
   const { data: conversations } = useQuery({
     queryKey: ['conversations'],
     queryFn: () => axiosFetch.get(`/conversations`).then(({ data }) => data),
     enabled: !!user,
-    refetchInterval: 5000 
+    refetchInterval: 5000
   });
 
-  // Вычисляем количество непрочитанных диалогов
+  // ИСПРАВЛЕНО (Пункт 3 ТЗ): Контекстный подсчет непрочитанных чатов по ID участников, а не по типу аккаунта
   const unreadCount = conversations 
-    ? conversations.filter(c => (user?.isSeller ? !c.readBySeller : !c.readByBuyer)).length 
+    ? conversations.filter(c => {
+        const isUserSellerInChat = c.sellerID?._id === user?._id || c.sellerID === user?._id;
+        return isUserSellerInChat ? !c.readBySeller : !c.readByBuyer;
+      }).length
     : 0;
 
   const isActive = () => {
@@ -62,14 +64,13 @@ const Navbar = () => {
     };
   }, []);
 
-  // Синхронизированные слаги категорий для РФ-рынка (ВКР)
   const menuLinks = [
     { path: "/gigs?cat=programming", name: "Разработка и IT" },
     { path: "/gigs?cat=design", name: "Графика и дизайн" },
     { path: "/gigs?cat=video", name: "Видео и анимация" },
-    { path: "/gigs?cat=books", name: "Тексты и переводы" },
-    { path: "/gigs?cat=social", name: "Маркетинг и SMM" },
-    { path: "/gigs?cat=voice", name: "Аудио и музыка" },
+    { path: "/gigs?cat=writing", name: "Тексты и переводы" },
+    { path: "/gigs?cat=marketing", name: "Маркетинг и SMM" },
+    { path: "/gigs?cat=music", name: "Аудио и музыка" },
     { path: "/gigs?cat=ai", name: "Нейросети и ИИ" },
     { path: "/gigs?cat=business", name: "Бизнес и консалтинг" },
   ];
@@ -123,8 +124,6 @@ const Navbar = () => {
             <Loader size={35} />
           ) : (
             <>
-              {/* ИСПРАВЛЕНО ДЛЯ ВКР (Пункты 9 и 10): Ссылка "Стать исполнительской" полностью удалена из шапки, 
-                  чтобы избежать несанкционированного получения прав доступа обычными пользователями */}
               {!user && (
                 <span>
                   <Link to="/login" className="link">
@@ -134,16 +133,16 @@ const Navbar = () => {
               )}
               {!user && (
                 <button
-                  className={showMenu || pathname !== "/" ? "join-active" : ""}
+                  className={showMenu || pathname !== "/" ? "join active" : ""}
                   onMouseEnter={() => setIsJoinHovered(true)}
                   onMouseLeave={() => setIsJoinHovered(false)}
                 >
-                  <Link 
-                    to="/register" 
+                  <Link
+                    to="/register"
                     className="link"
                     style={{ 
                       color: isJoinHovered 
-                        ? '#ffffff' 
+                        ? '#ffffff'
                         : (showMenu || pathname !== "/" ? '#1DBF73' : '#ffffff'), 
                       textDecoration: 'none',
                       fontWeight: 600,
@@ -158,17 +157,19 @@ const Navbar = () => {
               )}
               {user && (
                 <div className="user" onClick={() => setShowPanel(!showPanel)}>
-                  <div className="avatar-wrapper">
-                    <img src={getAvatarUrl()} alt="avatar" />
-                    {unreadCount > 0 && <span className="nav-unread-badge"></span>}
+                  <div className="avatar-wrapper" style={{ position: "relative", display: "inline-block" }}>
+                    <img src={getAvatarUrl()} alt="avatar" style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
+                    {/* КРАСНЫЙ КРУЖОК-ИНДИКАТОР УВЕДОМЛЕНИЙ НА АВАТАРКЕ */}
+                    {unreadCount > 0 && (
+                      <span className="nav-unread badge" style={{ position: "absolute", top: "-2px", right: "-2px", width: "10px", height: "10px", backgroundColor: "#ff3b30", borderRadius: "50%", border: "2px solid #fff" }}></span>
+                    )}
                   </div>
-                  <span className="nav-username">{user?.username}</span>
+                  <span className="nav username" style={{ marginLeft: "10px", cursor: "pointer" }}>{user?.username}</span>
                   {showPanel && (
                     <div className="options">
                       <Link className="link" to="/profile">
                         Настройки профиля
                       </Link>
-                      {/* Строгая проверка прав: окно добавления услуг доступно ТОЛЬКО реальным исполнителям из БД */}
                       {user?.isSeller && (
                         <>
                           <Link className="link" to="/my-gigs">

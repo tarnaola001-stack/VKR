@@ -10,11 +10,11 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
-  
+
   const [formData, setFormData] = useState({
     email: '',
     description: '',
-    isSeller: false, // ДОБАВЛЕНО ДЛЯ ВКР: Состояние роли в форме
+    isSeller: false, 
   });
 
   // Заполняем форму текущими данными пользователя при загрузке страницы
@@ -24,7 +24,7 @@ const Profile = () => {
       setFormData({
         email: user.email || '',
         description: user.description || '',
-        isSeller: user.isSeller || false, // ИСПРАВЛЕНО ДЛЯ ВКР
+        isSeller: user.isSeller || false, 
       });
     }
   }, [user]);
@@ -58,26 +58,30 @@ const Profile = () => {
       const payload = {
         email: formData.email.trim(),
         description: formData.description.trim(),
-        isSeller: formData.isSeller, // ИСПРАВЛЕНО ДЛЯ ВКР: Передаем роль на бэкенд
+        isSeller: formData.isSeller, 
         image: avatarUrl,
         img: avatarUrl
       };
 
       // Отправляем запрос обновления на бэкенд по ID авторизованного аккаунта
-      await axiosFetch.put(`/users/${user._id}`, payload);
-      
-      // Синхронизируем новое обновленное состояние в Recoil глобально на фронтенде
-      setUser({
+      const { data: responseData } = await axiosFetch.put(`/users/${user._id}`, payload);
+
+      // ИСПРАВЛЕНО ДЛЯ ВКР: Синхронизируем обновленное состояние, беря чистые данные из ответа СУБД
+      const updatedUser = responseData?.user || {
         ...user,
         email: payload.email,
         description: payload.description,
-        isSeller: payload.isSeller, // ИСПРАВЛЕНО ДЛЯ ВКР: Мгновенное обновление меню
+        isSeller: payload.isSeller, 
         image: avatarUrl,
         img: avatarUrl
-      });
+      };
+
+      // Перезаписываем глобальный стейт Recoil для мгновенной перестройки интерфейса
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
       toast.success('Профиль успешно обновлен!');
-      setFile(null); // Сбрасываем выбранный файл после успешной загрузки
+      setFile(null); 
     } catch (error) {
       const msg = error.response?.data?.message || 'Не удалось обновить профиль';
       toast.error(msg);
@@ -113,13 +117,11 @@ const Profile = () => {
               style={{ display: 'none' }} 
             />
           </div>
-
           <div className="input-group">
             <label>Имя пользователя (Логин)</label>
             <input type="text" value={user?.username || ''} disabled className="disabled-input" />
             <small>Смена логина невозможна по соображениям безопасности СУБД</small>
           </div>
-
           <div className="input-group">
             <label htmlFor="email">Электронная почта (Email)</label>
             <input 
@@ -132,8 +134,7 @@ const Profile = () => {
             />
             <small>Email необходим для фиксации финансовых операций и чеков заказов</small>
           </div>
-
-          {/* ИСПРАВЛЕНО ДЛЯ ВКР (Пункт 9): Безопасный переключатель роли пользователя в личном кабинете */}
+          
           <div className="input-group status-toggle-group">
             <label>Тип учетной записи платформы</label>
             <div className="toggle-wrapper">
@@ -150,7 +151,7 @@ const Profile = () => {
             </div>
             <small>Включение режима активирует разделы создания услуг и просмотра откликов</small>
           </div>
-
+          
           <div className="input-group">
             <label htmlFor="description">О себе / Описание деятельности</label>
             <textarea 
@@ -162,7 +163,6 @@ const Profile = () => {
               placeholder="Расскажите о ваших навыках или предпочтениях при заказе услуг..."
             ></textarea>
           </div>
-
           <button type="submit" disabled={loading} className="save-btn">
             {loading ? 'Сохранение...' : 'Сохранить изменения'}
           </button>

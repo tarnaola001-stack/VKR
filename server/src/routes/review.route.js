@@ -4,13 +4,10 @@ const { createReview, getReviews } = require('../controllers/review.controller')
 
 const app = express.Router();
 
-// Маршрут для создания нового отзыва (доступен только авторизованным клиентам)
+// Оставить отзыв может только авторизованный пользователь
 app.post('/', userMiddleware, createReview);
 
-// Маршрут для получения отзывов к конкретной услуге (id)
-app.get('/:id', getReviews);
-
-// ИСПРАВЛЕНО ДЛЯ ВКР (Пункт 7): Маршрут для получения сквозных отзывов исполнителя из каталога
-app.get('/', getReviews);
+// Просматривать отзывы к услуге могут все посетители сайта
+app.get('/:gigID', getReviews);
 
 module.exports = app;
