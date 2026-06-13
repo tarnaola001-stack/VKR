@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Gigs.scss";
-import GigCard from "../../components/gigCard/GigCard";
+import GigCard from "../../components/GigCard/GigCard";
 import { useQuery } from "@tanstack/react-query";
 import { axiosFetch } from "../../utils";
 import { useLocation } from "react-router-dom";

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './GigCard.scss';
 
 const GigCard = ({ item }) => {
-  const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+  const backendUrl = "https://freelancepf-api-tarnaola001.amvera.io";
   const authorData = item?.userID;
 
   const coverUrl = item?.cover 
