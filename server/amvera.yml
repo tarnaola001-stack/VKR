@@ -1,0 +1,10 @@
+meta:
+  environment: node
+  toolchain: npm
+build:
+  requirements:
+    - package.json
+  steps:
+    - npm install
+run:
+  command: node src/server.js
