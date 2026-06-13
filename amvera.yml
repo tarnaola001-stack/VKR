@@ -1,6 +1,8 @@
 meta:
-  environment: node
-  toolchain: npm
+  environment: nodejs
+  toolchain:
+    name: npm
+    version: "20"
 build:
   dir: server
   requirement:
