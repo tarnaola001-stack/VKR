@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(compression());
 app.use(cors({
-origin: ['http://localhost:5173', 'http://localhost:4173', 'https://netlify.app'],
+origin: ['http://localhost:5173', 'http://localhost:4173', 'https://vkr-kohl.vercel.app'],
 credentials: true
 }));
 
