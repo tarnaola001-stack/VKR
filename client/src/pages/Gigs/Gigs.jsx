@@ -11,17 +11,21 @@ function Gigs() {
   const minRef = useRef();
   const maxRef = useRef();
   const { search } = useLocation();
-
   const queryParams = new URLSearchParams(search);
   const rawCat = queryParams.get("cat") || "all";
   const urlSubCat = queryParams.get("subCat") || "all";
-  const searchQuery = queryParams.get("search") || ""; // ПОДХВАТ ПОИСКА С ГЛАВНОЙ (Пункт 1 ТЗ)
+  const searchQuery = queryParams.get("search") || ""; 
 
   const [selectedSub, setSelectedSub] = useState(urlSubCat);
+  const [localSearch, setLocalSearch] = useState(searchQuery);
 
   useEffect(() => {
     setSelectedSub(urlSubCat);
   }, [urlSubCat, search]);
+
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
 
   const getNormalizedCat = (catParam) => {
     const lower = catParam.toLowerCase().trim();
@@ -101,16 +105,15 @@ function Gigs() {
     ? (subcategoriesData[currentCat] || [])
     : Object.values(subcategoriesData).flat();
 
-  // ИСПРАВЛЕНО (Пункт 1 ТЗ): Добавлен query-параметр search в отправку запроса к API
   const { isLoading, error, data, refetch } = useQuery({
-    queryKey: ["gigs", currentCat, selectedSub, sort, searchQuery],
+    queryKey: ["gigs", currentCat, selectedSub, sort, localSearch],
     queryFn: () => {
       const min = minRef.current?.value || "";
       const max = maxRef.current?.value || "";
       let url = `/gigs?sort=${sort}&min=${min}&max=${max}`;
       if (currentCat !== "all") url += `&category=${currentCat}`;
       if (selectedSub !== "all") url += `&subCategory=${encodeURIComponent(selectedSub)}`;
-      if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+      if (localSearch) url += `&search=${encodeURIComponent(localSearch)}`;
       return axiosFetch.get(url).then((res) => res.data);
     },
   });
@@ -122,7 +125,7 @@ function Gigs() {
 
   useEffect(() => {
     refetch();
-  }, [sort, selectedSub, search]);
+  }, [sort, selectedSub, search, localSearch]);
 
   const catNames = {
     programming: "Разработка и IT",
@@ -139,12 +142,23 @@ function Gigs() {
     <div className="gigs">
       <div className="container">
         <span className="breadcrumbs">FreelancePF &gt; Каталог &gt;</span>
-        <h1>{catNames[currentCat] || "Все услуги"}</h1>
+        <div className="catalog-header-search" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+          <h1>{catNames[currentCat] || "Все услуги"}</h1>
+          <div className="inner-search-box" style={{ display: "flex", gap: "5px" }}>
+            <input 
+              type="text" 
+              value={localSearch} 
+              placeholder="Поиск по ключевым словам..." 
+              onChange={(e) => setLocalSearch(e.target.value)} 
+              style={{ padding: "6px 12px", border: "1px solid #e4e5e7", borderRadius: "4px", fontSize: "14px", width: "250px" }}
+            />
+            <button onClick={() => refetch()} style={{ padding: "6px 15px", backgroundColor: "#1dbf73", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "14px", fontWeight: "600" }}>Найти</button>
+          </div>
+        </div>
         <p>Эффективные решения для ваших задач от проверенных специалистов</p>
         <div className="menu">
           <div className="left">
             <span>Бюджет</span>
-            {/* ИСПРАВЛЕНО (Пункт 2 ТЗ): Вместо мин/макс установлены плейсхолдеры "от" и "до" */}
             <input ref={minRef} type="number" placeholder="от" />
             <input ref={maxRef} type="number" placeholder="до" />
             <select

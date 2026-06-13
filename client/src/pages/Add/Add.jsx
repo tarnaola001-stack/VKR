@@ -45,11 +45,14 @@ const Add = () => {
     setSelectedSubCat(event.target.value);
   };
 
+  // ИСПРАВЛЕНО (Пункт 3 ТЗ): Убрана навязчивая отбивка (alert / toast) при добавлении пунктов.
+  // Пункты добавляются в список тихо, плавно и бесшовно для лучшего UX.
   const handleFormFeature = (event) => {
     event.preventDefault();
     const inputElement = event.target.querySelector('#featureInput');
     const featureValue = inputElement?.value.trim();
     if (!featureValue) return;
+    
     dispatch({ type: 'ADD_FEATURE', payload: featureValue });
     inputElement.value = ''; 
   };
@@ -76,10 +79,8 @@ const Add = () => {
     try {
       setUploading(true);
       loadingToastId = toast.loading('Загрузка медиафайлов на сервер...');
-      
       const coverRes = await generateImageURL(coverImage);
       
-      // ИСПРАВЛЕНО: Безопасное вычленение имени файла без использования ломающегося split
       let cleanCoverName = coverRes?.url || "";
       if (cleanCoverName.includes('/uploads/')) {
         cleanCoverName = cleanCoverName.substring(cleanCoverName.lastIndexOf('/') + 1);
@@ -90,8 +91,6 @@ const Add = () => {
         const uploadedImages = await Promise.all(
           [...gigImages].map(async (img) => await generateImageURL(img))
         );
-        
-        // ИСПРАВЛЕНО: Безопасное вычленение имени для дополнительных картинок
         imagesUrls = uploadedImages.map((img) => {
           let urlStr = img?.url || "";
           if (urlStr.includes('/uploads/')) {
@@ -100,7 +99,6 @@ const Add = () => {
           return urlStr;
         });
       } else {
-        // ИСПРАВЛЕНО: Вместо ломающей слайдер заглушки передаем обложку, дублируя ее для NoSQL-целостности
         imagesUrls = [cleanCoverName];
       }
 
@@ -140,7 +138,6 @@ const Add = () => {
               placeholder='Например: Я разработаю современный веб-сайт на React' 
               onChange={handleFormChange} 
             />
-            
             <label htmlFor="category">Категория (Направление)</label>
             <select 
               name="category" 
@@ -159,7 +156,6 @@ const Add = () => {
                 </optgroup>
               ))}
             </select>
-            
             <label htmlFor="description">Подробное описание услуги</label>
             <textarea 
               id="description"
@@ -169,40 +165,34 @@ const Add = () => {
               placeholder='Подробно опишите результат работы...' 
               onChange={handleFormChange}
             ></textarea>
-            
             <button onClick={handleFormSubmit} disabled={uploading}>
               {uploading ? 'Обработка данных...' : 'Опубликовать услугу'}
             </button>
           </div>
-
           <div className="right">
             <label>Обложка услуги</label>
             <div className="images">
               <div className="imagesInputs">
-                {/* ИСПРАВЛЕНО: Безопасный зацеп на первый элемент массива */}
                 <input type="file" onChange={(e) => setCoverImage(e.target.files[0])} />
               </div>
             </div>
-            
             <label>Загрузить примеры работ</label>
             <div className="images">
               <div className="imagesInputs">
                 <input type="file" multiple onChange={(e) => setGigImages(e.target.files)} />
               </div>
             </div>
-            
             <label htmlFor="deliveryTime">Срок выполнения в днях</label>
             <input id="deliveryTime" type="number" name='deliveryTime' min='1' onChange={handleFormChange} />
-            
             <label htmlFor="revisionNumber">Количество допустимых правок</label>
             <input id="revisionNumber" type="number" name='revisionNumber' min='1' onChange={handleFormChange} />
             
             <label>Что входит в стоимость</label>
-            <form className='add' onSubmit={handleFormFeature}>
-              <input id="featureInput" type="text" placeholder='Например: Адаптивный дизайн' />
-              <button type='submit'>Добавить</button>
+            {/* Форма добавления пунктов работает бесшумно без всплывающих уведомлений */}
+            <form className='add-feature-subform' onSubmit={handleFormFeature} style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+              <input id="featureInput" type="text" placeholder='Например: Адаптивный дизайн' style={{ flex: 1, marginBottom: 0 }} />
+              <button type='submit' style={{ width: "auto", padding: "0 20px", margin: 0, height: "45px" }}>Добавить</button>
             </form>
-            
             <div className="addedFeatures">
               {state.features?.map((feature) => (
                 <div key={feature} className="item">
@@ -212,7 +202,7 @@ const Add = () => {
                 </div>
               ))}
             </div>
-            
+
             <label htmlFor="price">Стоимость (в рублях)</label>
             <input id="price" name='price' type="number" min='1' onChange={handleFormChange} />
           </div>

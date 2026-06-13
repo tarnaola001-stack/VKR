@@ -24,7 +24,6 @@
     .logo {
       font-size: 34px;
       font-weight: bold;
-
       .dot {
         color: var(--green-color, #1dbf73);
       }
@@ -50,14 +49,12 @@
       text-decoration: none;
       transition: color 0.2s ease;
       cursor: pointer;
-
       &:hover {
         color: var(--green-color, #1dbf73);
       }
     }
   }
 
-  /* ИСПРАВЛЕНО ДЛЯ ВКР: Позиционирование аватарки и бейджа уведомлений */
   .user {
     display: flex;
     align-items: center;
@@ -66,10 +63,9 @@
     position: relative;
 
     .avatar-wrapper {
-      position: relative; // База для позиционирования точки
+      position: relative;
       display: flex;
       align-items: center;
-
       img {
         width: 32px;
         height: 32px;
@@ -78,22 +74,20 @@
         border: 1px solid rgba(228, 227, 227, 0.6);
       }
 
-      /* КРАСНАЯ КРУГЛАЯ ТОЧКА УВЕДОМЛЕНИЙ НА АВАТАРКЕ */
-      .nav-unread-badge {
+      .nav-unread.badge {
         position: absolute;
         top: -2px;
         right: -2px;
         width: 10px;
         height: 10px;
-        background-color: #ff4d4f; // Яркий красный цвет
+        background-color: #ff3b30;
         border-radius: 50%;
-        border: 1.5px solid #ffffff; // Белая обводка, чтобы не сливался
-        box-shadow: 0 0 4px rgba(255, 77, 79, 0.4);
-        animation: pulseBadge 2s infinite; // Эффект пульсации для ВКР
+        border: 2px solid #fff;
+        box-shadow: 0 0 4px rgba(255, 59, 48, 0.4);
       }
     }
 
-    .nav-username {
+    .nav.username {
       font-weight: 600;
     }
 
@@ -103,14 +97,13 @@
       top: 50px;
       right: 0;
       padding: 8px 0;
-      z-index: 25; // Повысили приоритет, чтобы перекрывать подменю
+      z-index: 25;
       color: #555;
       font-weight: 400;
       background-color: #fff;
       border: 1px solid lightgray;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transition: 0.3s all ease;
       display: flex;
       flex-direction: column;
       gap: 0px;
@@ -124,58 +117,57 @@
         text-align: left;
         width: 100%;
         box-sizing: border-box;
-
-        /* ИСПРАВЛЕНО ДЛЯ ВКР: Выделение текста счетчика сообщений (1) в выпадающем меню */
-        &:contains("(1)"), 
-        &:has(span),
-        & {
-          // Если внутри строки Сообщения появляется цифра, подсвечиваем её
-          // Для точного попадания стилизуем текстовое содержимое с цифрой
-          color: #555;
-        }
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
 
         &:hover {
           background-color: #f1fdf7;
           color: var(--green-color, #1dbf73) !important;
         }
       }
-      
-      /* Жесткий графический фикс: если в ссылке есть текст счетчика, перекрашиваем скобки и цифру */
-      Link, .link {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
     }
   }
-
-  button {
+  // ИСПРАВЛЕНО ДЛЯ ВКР: Симметричная стилизация кнопок авторизации с единым шрифтом проекта
+  button.join {
     color: #fff;
-    padding: 10px 20px;
+    background-color: transparent;
+    border: 1px solid #fff;
     border-radius: 5px;
     font-size: 14px;
-    border: 1px solid #fff;
-    cursor: pointer;
-    background-color: transparent;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: var(--green-color, #1dbf73);
-      border-color: var(--green-color, #1dbf73);
-    }
-  }
-
-  .join-active {
-    color: #1DBF73;
     font-weight: 600;
-    font-size: 14px;
-    border: 1px solid #1DBF73;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
+    font-family: inherit; // Принудительное наследование единого шрифта
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+
+    .link {
+      transition: color 0.2s ease;
+    }
 
     &:hover {
-      background-color: #1DBF73;
-      border-color: #1DBF73;
+      background-color: var(--green-color, #1dbf73) !important;
+      border-color: var(--green-color, #1dbf73) !important;
+      
+      .link {
+        color: #ffffff !important; // Перекрашиваем текст ссылки внутри кнопки при наведении
+      }
+    }
+
+    // Стили для кнопок, когда шапка становится белой (.active) на внутренних страницах
+    &.active {
+      color: #1DBF73;
+      border: 1px solid #1DBF73;
+      background-color: transparent;
+
+      &:hover {
+        background-color: #1DBF73 !important;
+        border-color: #1DBF73 !important;
+        
+        .link {
+          color: #ffffff !important;
+        }
+      }
     }
   }
 
@@ -187,7 +179,6 @@
   .menu {
     width: 80%;
     color: #555;
-
     .menu-item {
       padding: 10px 0;
       cursor: pointer;

@@ -1,38 +1,38 @@
 const { Message, Conversation } = require('../models');
 
 const createMessage = async (request, response) => {
-  const { conversationID, description } = request.body;
+  const { conversationID, description, files } = request.body; // Принимаем массив файлов с фронтенда
   try {
     const message = new Message({
       conversationID,
       userID: request.userID,
-      description,
-      isRead: false // Новое сообщение всегда создается непрочитанным
+      description: description || "",
+      files: files || [], // Сохраняем переданные файлы
+      isRead: false 
     });
     await message.save();
 
-    // Находим диалог, чтобы определить, кем в нем является отправитель сообщения
     const currentConv = await Conversation.findOne({ conversationID });
     if (!currentConv) {
       return response.status(404).send({ error: true, message: "Чат не найден" });
     }
-
     const isSenderSeller = currentConv.sellerID.toString() === request.userID;
 
-    // Собеседник получает статус unread, а отправитель - read
     await Conversation.findOneAndUpdate(
       { conversationID: conversationID }, 
       {
         $set: {
-          readBySeller: isSenderSeller,      // Для продавца прочитано, если он сам автор
-          readByBuyer: !isSenderSeller,     // Для покупателя прочитано, если он сам автор
-          lastMessage: description
+          readBySeller: isSenderSeller, 
+          readByBuyer: !isSenderSeller, 
+          lastMessage: description || "Отправлены файлы..."
         }
       }, 
       { new: true }
     );
-
-    return response.status(201).send(message);
+    
+    // Подгружаем данные пользователя перед ответом, чтобы фронтенд сразу видел имя
+    const populatedMessage = await Message.findById(message._id).populate('userID', 'username image email isSeller');
+    return response.status(201).send(populatedMessage);
   }
   catch (error) {
     return response.status(500).send({
@@ -45,25 +45,25 @@ const createMessage = async (request, response) => {
 const getMessages = async (request, response) => {
   const { conversationID } = request.params;
   try {
-    // ИСПРАВЛЕНО КРИТИЧЕСКИЙ БАГ СИНХРОНИЗАЦИИ: 
-    // Как только пользователь запрашивает сообщения чата, помечаем все входящие письма от собеседника как прочитанные в MongoDB
     await Message.updateMany(
       { 
         conversationID, 
-        userID: { $ne: request.userID } // Находим только чужие сообщения
+        userID: { $ne: request.userID } 
       },
       { 
         $set: { isRead: true } 
       }
     );
 
-    // Подгружаем обновленный массив сообщений для отправки на фронтенд
-    const messages = await Message.find({ conversationID }).populate('userID', 'username image email img isSeller');
-    
+    // Добавлено populate для извлечения имени (username) и аватарки отправителя
+    const messages = await Message.find({ conversationID })
+      .populate('userID', 'username image email isSeller')
+      .sort({ createdAt: 1 }); // Сортируем по времени создания
+
     const safeMessages = messages.map(msg => {
       const doc = msg.toObject ? msg.toObject() : msg;
       if (!doc.userID) {
-        doc.userID = { _id: "deleted", username: "Пользователь", image: "/media/noavatar.png", img: "/media/noavatar.png" };
+        doc.userID = { _id: "deleted", username: "Пользователь", image: "/media/noavatar.png" };
       }
       return doc;
     });
@@ -71,8 +71,6 @@ const getMessages = async (request, response) => {
     const currentConv = await Conversation.findOne({ conversationID });
     if (currentConv) {
       const isUserSeller = currentConv.sellerID.toString() === request.userID;
-
-      // Гасим общий маркер непрочитанности для всей комнаты чата
       await Conversation.findOneAndUpdate(
         { conversationID: conversationID },
         {
@@ -82,7 +80,6 @@ const getMessages = async (request, response) => {
         }
       );
     }
-
     return response.status(200).send(safeMessages);
   }
   catch (error) {

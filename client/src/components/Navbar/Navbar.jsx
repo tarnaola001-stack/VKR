@@ -45,11 +45,29 @@ const Navbar = () => {
     refetchInterval: 5000
   });
 
-  // ИСПРАВЛЕНО (Пункт 3 ТЗ): Контекстный подсчет непрочитанных чатов по ID участников, а не по типу аккаунта
+  const { data: ordersData } = useQuery({
+    queryKey: ['navbarOrdersBadge'],
+    queryFn: () => axiosFetch.get(`/orders`).then(({ data }) => data),
+    enabled: !!user, 
+    refetchInterval: 5000
+  });
+
   const unreadCount = conversations 
     ? conversations.filter(c => {
         const isUserSellerInChat = c.sellerID?._id === user?._id || c.sellerID === user?._id;
         return isUserSellerInChat ? !c.readBySeller : !c.readByBuyer;
+      }).length
+    : 0;
+
+  const newOrdersCount = ordersData
+    ? ordersData.filter(o => {
+        if (user?.isSeller && (o.sellerID?._id === user?._id || o.sellerID === user?._id)) {
+          return !o.readBySeller;
+        }
+        if (o.buyerID?._id === user?._id || o.buyerID === user?._id) {
+          return !o.readByBuyer;
+        }
+        return false;
       }).length
     : 0;
 
@@ -88,7 +106,6 @@ const Navbar = () => {
       { breakpoint: 480, settings: { slidesToShow: 2 } },
     ],
   };
-
   const handleLogout = async () => {
     try {
       await axiosFetch.post("/auth/logout");
@@ -124,18 +141,38 @@ const Navbar = () => {
             <Loader size={35} />
           ) : (
             <>
-              {!user && (
-                <span>
-                  <Link to="/login" className="link">
-                    Войти
-                  </Link>
-                </span>
-              )}
+              {/* ИСПРАВЛЕНО ДЛЯ ВКР (Симметрия шапки): Кнопка Войти */}
               {!user && (
                 <button
-                  className={showMenu || pathname !== "/" ? "join active" : ""}
+                  className={showMenu || pathname !== "/" ? "join active" : "join"}
+                  style={{ display: 'block', height: '42px', padding: 0 }}
+                >
+                  <Link
+                    to="/login"
+                    className="link"
+                    style={{ 
+                      color: showMenu || pathname !== "/" ? '#1DBF73' : '#ffffff', 
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      height: '100%',
+                      padding: '0 20px'
+                    }}
+                  >
+                    Войти
+                  </Link>
+                </button>
+              )}
+              {/* ИСПРАВЛЕНО ДЛЯ ВКР (Симметрия шапки): Кнопка Регистрация */}
+              {!user && (
+                <button
+                  className={showMenu || pathname !== "/" ? "join active" : "join"}
                   onMouseEnter={() => setIsJoinHovered(true)}
                   onMouseLeave={() => setIsJoinHovered(false)}
+                  style={{ display: 'block', height: '42px', padding: 0 }}
                 >
                   <Link
                     to="/register"
@@ -146,9 +183,12 @@ const Navbar = () => {
                         : (showMenu || pathname !== "/" ? '#1DBF73' : '#ffffff'), 
                       textDecoration: 'none',
                       fontWeight: 600,
-                      display: 'block',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       width: '100%',
-                      height: '100%'
+                      height: '100%',
+                      padding: '0 20px'
                     }}
                   >
                     Регистрация
@@ -159,8 +199,7 @@ const Navbar = () => {
                 <div className="user" onClick={() => setShowPanel(!showPanel)}>
                   <div className="avatar-wrapper" style={{ position: "relative", display: "inline-block" }}>
                     <img src={getAvatarUrl()} alt="avatar" style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
-                    {/* КРАСНЫЙ КРУЖОК-ИНДИКАТОР УВЕДОМЛЕНИЙ НА АВАТАРКЕ */}
-                    {unreadCount > 0 && (
+                    {(unreadCount > 0 || newOrdersCount > 0) && (
                       <span className="nav-unread badge" style={{ position: "absolute", top: "-2px", right: "-2px", width: "10px", height: "10px", backgroundColor: "#ff3b30", borderRadius: "50%", border: "2px solid #fff" }}></span>
                     )}
                   </div>
@@ -172,19 +211,17 @@ const Navbar = () => {
                       </Link>
                       {user?.isSeller && (
                         <>
-                          <Link className="link" to="/my-gigs">
-                            Мои услуги
-                          </Link>
-                          <Link className="link" to="/add">
-                            Создать услугу
-                          </Link>
+                          <Link className="link" to="/my-gigs">Мои услуги</Link>
+                          <Link className="link" to="/add">Создать услугу</Link>
                         </>
                       )}
-                      <Link className="link" to="/orders">
-                        Заказы
+                      <Link className="link" to="/orders" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                        <span>Заказы</span> 
+                        {newOrdersCount > 0 && <span style={{ color: "#1dbf73", fontWeight: "bold" }}>({newOrdersCount})</span>}
                       </Link>
-                      <Link className="link" to="/messages">
-                        Сообщения {unreadCount > 0 && `(${unreadCount})`}
+                      <Link className="link" to="/messages" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                        <span>Сообщения</span> 
+                        {unreadCount > 0 && <span style={{ color: "#1dbf73", fontWeight: "bold" }}>({unreadCount})</span>}
                       </Link>
                       <span className="link" onClick={handleLogout} style={{cursor: 'pointer'}}>
                         Выйти

@@ -12,15 +12,19 @@ const messageSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true,
+    required: false,
+    default: ""
+  },
+  files: {
+    type: [String], // Массив строк для поддержки множественных файлов за один раз
+    default: []
   },
   isRead: {
     type: Boolean,
     default: false,
   }
 }, {
-  timestamps: true,
-  versionKey: false
+  timestamps: true // Автоматически добавляет и обновляет createdAt (дата и время отправки)
 });
 
 module.exports = mongoose.model('Message', messageSchema);

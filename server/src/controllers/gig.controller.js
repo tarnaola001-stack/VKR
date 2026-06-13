@@ -23,11 +23,7 @@ const createGig = async (request, response) => {
       else if (error.errors.deliveryTime) message = 'Пожалуйста, укажите срок выполнения в днях!';
       else if (error.errors.price) message = 'Пожалуйста, укажите стоимость услуги!';
       else message += Object.values(error.errors).map(e => e.message).join(', ');
-      
-      return response.status(400).send({
-        error: true,
-        message: message
-      });
+      return response.status(400).send({ error: true, message: message });
     }
     return response.status(error.status || 500).send({
       error: true,
@@ -53,10 +49,7 @@ const deleteGig = async (request, response) => {
     throw CustomException('Некорректный запрос! Вы не можете удалять услуги других пользователей!', 403);
   }
   catch ({ message, status = 500 }) {
-    return response.status(status).send({
-      error: true,
-      message
-    });
+    return response.status(status).send({ error: true, message });
   }
 };
 
@@ -70,10 +63,7 @@ const getGig = async (request, response) => {
     return response.send(gig);
   }
   catch ({ message, status = 500 }) {
-    return response.status(status).send({
-      error: true,
-      message
-    });
+    return response.status(status).send({ error: true, message });
   }
 };
 
@@ -82,8 +72,8 @@ const getGigs = async (request, response) => {
   try {
     const filters = {
       ...(userID && { userID }),
-      ...(category && { category: category }),
-      ...(subCategory && { subCategory: subCategory }),
+      ...(category && category !== "all" && category !== "Все услуги" && { category }), // Поддержка поиска по всем услугам без сброса текста
+      ...(subCategory && { subCategory }),
       ...(search && { title: { $regex: search, $options: 'i' } }),
       ...((min || max) && {
         price: {
@@ -92,9 +82,8 @@ const getGigs = async (request, response) => {
         },
       })
     };
-
+    
     const sortOption = sort === "createdAt" ? { createdAt: -1 } : { sales: -1 };
-
     const gigs = await Gig.find(filters)
       .sort(sortOption)
       .populate('userID', 'username cover email description isSeller _id image img');
@@ -103,37 +92,56 @@ const getGigs = async (request, response) => {
       gigs.map(async (gig) => {
         const gigObj = gig.toObject();
         const authorId = gig.userID?._id || gig.userID;
-
         if (authorId) {
           const allSellerGigs = await Gig.find({ userID: authorId });
-          
           let totalStars = 0;
           let totalRatingsCount = 0;
-
           allSellerGigs.forEach(g => {
             if (g.starNumber && g.starNumber > 0) {
               totalStars += g.totalStars || 0;
               totalRatingsCount += g.starNumber;
             }
           });
-
           gigObj.authorTotalStars = totalStars;
           gigObj.authorStarNumber = totalRatingsCount;
         } else {
           gigObj.authorTotalStars = 0;
           gigObj.authorStarNumber = 0;
         }
-
         return gigObj;
       })
     );
-
     return response.send(calculatedGigs);
   }
   catch ({ message, status = 500 }) {
-    return response.status(status).send({
+    return response.status(status).send({ error: true, message });
+  }
+};
+
+// НОВЫЙ АЛГОРИТМ ДЛЯ ВКР: Выборка по 1 самой ранней опубликованной услуге из каждой уникальной категории
+const getHomepageSliderGigs = async (request, response) => {
+  try {
+    // Получаем список всех уникальных категорий, присутствующих в БД
+    const categories = await Gig.distinct("category");
+    const sliderGigs = [];
+
+    for (let cat of categories) {
+      if (!cat) continue;
+      // Находим самую первую добавленную услугу в текущей категории (сортировка по возрастанию даты)
+      const firstGig = await Gig.findOne({ category: cat })
+        .sort({ createdAt: 1 }) 
+        .populate('userID', 'username image email isSeller');
+        
+      if (firstGig) {
+        sliderGigs.push(firstGig);
+      }
+    }
+    // Ограничиваем выдачу до 8 категорий согласно ТЗ интерфейса
+    return response.status(200).send(sliderGigs.slice(0, 8));
+  } catch (error) {
+    return response.status(500).send({
       error: true,
-      message
+      message: "Ошибка генерации данных NoSQL-слайдера: " + error.message
     });
   }
 };
@@ -142,5 +150,6 @@ module.exports = {
   createGig,
   deleteGig,
   getGig,
-  getGigs
+  getGigs,
+  getHomepageSliderGigs // Не забудьте зарегистрировать этот эндпоинт в файле роутера!
 };
