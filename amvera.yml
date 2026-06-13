@@ -2,9 +2,11 @@ meta:
   environment: node
   toolchain: npm
 build:
-  requirements:
-    - server/package.json
-  steps:
-    - cd server && npm install
+  dir: server
+  requirement:
+    - package.json
+  step:
+    - npm install
 run:
-  command: cd server && node src/server.js
+  dir: server
+  command: node src/server.js
