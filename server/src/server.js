@@ -86,7 +86,7 @@ app.use('/api/messages', messageRoute);
 app.use('/api/reviews', reviewRoute);
 
 app.get('/', (request, response) => {
-response.send('Hello, Topper!');
+response.send('Hello!');
 });
 
 app.get('/ip', (request, response) => {
