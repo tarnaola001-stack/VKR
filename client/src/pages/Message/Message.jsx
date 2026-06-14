@@ -4,7 +4,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRecoilValue } from "recoil";
 import { userState } from "../../atoms";
-import { axiosFetch, generateImageURL } from '../../utils';
+import { axiosFetch, generateImageURL, getImageUrl } from '../../utils';
 import { Loader } from '../../components';
 import "./Message.scss";
 
@@ -76,12 +76,18 @@ const Message = () => {
     setUploadingFiles(true);
     const loadToast = toast.loading("Загрузка файлов...");
     try {
-      const uploadedUrls = await Promise.all(
-        Array.from(files).map(async (file) => {
-          const res = await generateImageURL(file);
-          return res?.url || "";
-        })
-      );
+const uploadedUrls = await Promise.all(
+  Array.from(files).map(async (file) => {
+    const res = await generateImageURL(file);
+    const url = res?.url || "";
+
+    if (url.includes("/uploads/")) {
+      return url.substring(url.lastIndexOf("/") + 1);
+    }
+
+    return url;
+  })
+);
       const validUrls = uploadedUrls.filter(url => url !== "");
       setAttachedFiles(prev => [...prev, ...validUrls]);
       toast.success(`Файлы (${validUrls.length} шт.) подготовлены к отправке!`);
@@ -119,28 +125,39 @@ const Message = () => {
     return `${hours}:${minutes} (${day}.${month})`;
   };
 
-  const handleDownloadFile = async (e, fileUrl, fileName) => {
-    e.preventDefault();
-    const downloadToast = toast.loading("Подготовка файла к скачиванию...");
-    try {
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      toast.success("Скачивание началось!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Не удалось скачать файл.");
-    } finally {
-      downloadToast && toast.dismiss(downloadToast);
+const handleDownloadFile = async (e, fileUrl, fileName) => {
+  e.preventDefault();
+
+  const finalUrl = getImageUrl(fileUrl);
+  const downloadToast = toast.loading("Подготовка файла к скачиванию...");
+
+  try {
+    const response = await fetch(finalUrl);
+
+    if (!response.ok) {
+      throw new Error(`Ошибка скачивания файла: ${response.status}`);
     }
-  };
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName);
+
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+
+    window.URL.revokeObjectURL(url);
+    toast.success("Скачивание началось!");
+  } catch (error) {
+    console.error(error);
+    toast.error("Не удалось скачать файл.");
+  } finally {
+    toast.dismiss(downloadToast);
+  }
+};
 
   const renderCheckmarks = (message) => {
     if (!conversationData) return <span className="checkmarks unread" style={{ color: "#a6a6a6" }}>✓</span>;
