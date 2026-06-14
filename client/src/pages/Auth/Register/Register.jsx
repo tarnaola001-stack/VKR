@@ -95,7 +95,7 @@ const Register = () => {
             id="email"
             name="email"
             type="email"
-            placeholder="example@mail.ru"
+            placeholder="student_nvgu@mail.ru"
             onChange={handleChange}
           />
           <label htmlFor="password">Пароль <span style={{color: 'red'}}>*</span></label>
