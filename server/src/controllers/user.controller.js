@@ -2,6 +2,10 @@ const { User } = require('../models');
 const { CustomException } = require('../utils');
 const jwt = require('jsonwebtoken'); // Убедитесь, что эта строка есть вверху файла
 
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(String(email).trim());
+};
+
 const getUser = async (request, response) => {
   const { _id } = request.params;
   try {
@@ -36,9 +40,28 @@ const updateUser = async (request, response) => {
     if (request.userID !== user._id.toString()) {
       throw CustomException('Доступ запрещен! Вы можете редактировать только свой профиль.', 403);
     }
-    if (email && !email.trim()) {
-      throw CustomException('Электронная почта не может состоять из одних пробелов!', 400);
-    }
+    if (email !== undefined) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    throw CustomException('Электронная почта не может быть пустой!', 400);
+  }
+
+  if (!isValidEmail(normalizedEmail)) {
+    throw CustomException('Введите корректный Email. Например: student@yandex.com', 400);
+  }
+
+  const emailExists = await User.findOne({
+    email: normalizedEmail,
+    _id: { $ne: _id },
+  });
+
+  if (emailExists) {
+    throw CustomException('Этот Email уже используется другим пользователем!', 400);
+  }
+
+  user.email = normalizedEmail;
+}
     if (email) user.email = email.trim();
     if (description !== undefined) user.description = description.trim();
     if (image || img) {
@@ -54,19 +77,26 @@ const updateUser = async (request, response) => {
     const { password, ...updatedData } = user._doc;
 
     // ИСПРАВЛЕНО ДЛЯ ВКР: Перезаписываем JWT токен в сессии, чтобы обновить роль isSeller на сервере без перезахода
-    const secretKey = process.env.JWT_KEY || "secret"; // Замените на вашу переменную секретного ключа из auth.controller
-    const token = jwt.sign(
-      { _id: user._id, isSeller: user.isSeller },
-      secretKey,
-      { expiresIn: '24h' }
-    );
+    const secretKey = process.env.JWT_SECRET;
+
+    if (!secretKey) {
+    throw CustomException('JWT_SECRET не задан в переменных окружения сервера!', 500);
+    }
+
+  const token = jwt.sign(
+  { _id: user._id, isSeller: user.isSeller },
+  secretKey,
+  { expiresIn: '7 days' }
+  );
 
     // Обновляем куку авторизации новыми данными
-    response.cookie('accessToken', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
-    });
+  response.cookie('accessToken', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  maxAge: 60 * 60 * 24 * 7 * 1000,
+  path: '/',
+  });
 
     return response.status(200).send({
       error: false,

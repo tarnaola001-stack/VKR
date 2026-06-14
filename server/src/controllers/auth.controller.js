@@ -5,6 +5,10 @@ const bcrypt = require('bcrypt');
 const { JWT_SECRET, NODE_ENV } = process.env;
 const saltRounds = 10;
 
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(String(email).trim());
+};
+
 const authRegister = async (request, response) => {
   const { username, email, phone, password, image, isSeller, description } = request.body;
   
@@ -20,6 +24,12 @@ const authRegister = async (request, response) => {
         error: true,
         message: 'Email обязателен для заполнения!'
       });
+    if (!isValidEmail(normalizedEmail)) {
+        return response.status(400).send({
+        error: true,
+        message: 'Введите корректный Email. Например: student@yandex.com',
+    }); 
+    }
     }
     if (!password) {
       return response.status(400).send({
@@ -34,7 +44,7 @@ const authRegister = async (request, response) => {
     // ИСПРАВЛЕНО ДЛЯ ВКР: Безопасное приведение типов данных и русификация
     const user = new User({
       username: username,
-      email: email,
+      email: normalizedEmail,
       password: hash,
       image: image || "/media/noavatar.png", 
       country: "Russia", 
