@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { axiosFetch } from '../../utils';
+import { axiosFetch, getImageUrl } from '../../utils';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../atoms';
 import { Loader } from '../../components';
@@ -12,7 +12,6 @@ const MyGigs = () => {
   const user = useRecoilValue(userState);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
   const { isLoading, error, data } = useQuery({
     queryKey: ['my-gigs'],
@@ -71,9 +70,7 @@ const MyGigs = () => {
             <tbody>
               {data && data.map((gig) => {
                 // ИСПРАВЛЕНО ДЛЯ ХОСТИНГА: Динамическая сборка ссылки без жесткого localhost
-                const imgUrl = gig.cover
-                  ? (gig.cover.startsWith('http') || gig.cover.startsWith('/media/') ? gig.cover : `${backendUrl}/uploads/${gig.cover}`)
-                  : "/media/noimage.png";
+            const imgUrl = getImageUrl(gig.cover);
 
                 return (
                   <tr key={gig._id}>

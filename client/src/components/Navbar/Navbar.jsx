@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { useQuery } from '@tanstack/react-query';
-import { axiosFetch } from "../../utils";
+import { axiosFetch, getImageUrl } from "../../utils";
 import { useRecoilState } from "recoil";
 import { userState } from "../../atoms";
 import { Loader } from "..";
@@ -118,14 +118,10 @@ const Navbar = () => {
     }
   };
 
-  const getAvatarUrl = () => {
-    const avatar = user?.image || user?.img;
-    if (!avatar) return "/media/noavatar.png";
-    if (avatar.startsWith("http://") || avatar.startsWith("https://") || avatar.startsWith("/media/")) {
-      return avatar;
-    }
-    return `http://localhost:8080/uploads/${avatar}`;
-  };
+const getAvatarUrl = () => {
+  const avatar = user?.image || user?.img;
+  return getImageUrl(avatar, "/media/noavatar.png");
+};
 
   return (
     <nav className={showMenu || pathname !== "/" ? "navbar active" : "navbar"}>

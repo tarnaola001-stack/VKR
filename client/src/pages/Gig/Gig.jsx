@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { axiosFetch, getCountryFlag } from '../../utils';
+import { axiosFetch, getCountryFlag, getImageUrl } from '../../utils';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Loader, Reviews } from '../../components';
 import { useRecoilValue } from 'recoil';
@@ -16,7 +16,6 @@ const Gig = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
   // 1. Чистый запрос услуги
   const { isLoading, error, data } = useQuery({
@@ -125,16 +124,14 @@ const Gig = () => {
   let finalImages = [];
 
   if (data) {
-    if (data.cover) {
-      finalCover = data.cover.startsWith('http') || data.cover.startsWith('/media/')
-        ? data.cover
-        : `${backendUrl}/uploads/${data.cover}`;
-    }
+  if (data.cover) {
+  finalCover = getImageUrl(data.cover);
+  }
 
     if (data.images && Array.isArray(data.images)) {
       finalImages = data.images
         .filter(img => img && img.trim() !== '' && !img.includes('/media/default-cover.png'))
-        .map(img => img.startsWith('http') || img.startsWith('/media/') ? img : `${backendUrl}/uploads/${img}`);
+        .map(img => getImageUrl(img));
     }
 
     if (finalImages.length === 0 && finalCover) {

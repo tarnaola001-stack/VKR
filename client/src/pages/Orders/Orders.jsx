@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import { useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { axiosFetch } from "../../utils";
+import { axiosFetch, getImageUrl } from "../../utils";
 import { useRecoilValue } from "recoil";
 import { userState } from "../../atoms";
 import { Loader } from '../../components';
@@ -149,7 +149,10 @@ const reviewMilestoneMutation = useMutation({
               {data && data.map((order) => {
                 const isUserSellerInOrder = order.sellerID?._id === user._id || order.sellerID === user._id;
                 const partner = isUserSellerInOrder ? order.buyerID : order.sellerID;
-                const orderImage = order.image || "/media/default-cover.png";
+                const orderImage = getImageUrl(
+                order.image || order.gigID?.cover || order.gigID?.images?.[0],
+                "/media/default-cover.png"
+                );
                 
                 const { dateString, isOverdue } = calculateDeadline(order.createdAt, order.deliveryTime, order.extendedDays);
                 return (

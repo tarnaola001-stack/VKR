@@ -1,20 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './GigCard.scss';
+import { getImageUrl } from '../../utils';
 
 const GigCard = ({ item }) => {
-  const backendUrl = "https://freelancepf-api-tarnaola001.amvera.io";
   const authorData = item?.userID;
 
-  const coverUrl = item?.cover 
-    ? (item.cover.startsWith('http') || item.cover.startsWith('/media/') ? item.cover : `${backendUrl}/uploads/${item.cover}`)
-    : "/media/noimage.png";
+const coverUrl = getImageUrl(item?.cover);
 
-  const avatarUrl = authorData?.image || authorData?.img
-    ? ((authorData.image || authorData.img).startsWith('http') || (authorData.image || authorData.img).startsWith('/media/'))
-      ? (authorData.image || authorData.img) 
-      : `${backendUrl}/uploads/${authorData.image || authorData.img}`
-    : '/media/noavatar.png';
+const avatarUrl = getImageUrl(authorData?.image || authorData?.img, "/media/noavatar.png");
 
   const hasRatings = item?.authorStarNumber > 0;
   const starRating = hasRatings ? (item.authorTotalStars / item.authorStarNumber) : 0;
