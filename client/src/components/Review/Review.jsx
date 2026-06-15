@@ -15,7 +15,7 @@ const Review = (props) => {
         <div className="info">
           <span>{review?.userID?.username}</span>
       <div className="country">
-      <span style={{ fontSize: "14px", lineHeight: "1" }}>🇷🇺</span>
+      <span className="ruFlag"></span>
       <span>Russia</span>
       </div>
         </div>

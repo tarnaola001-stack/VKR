@@ -32,18 +32,28 @@
             }
         }
 
-        .country {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: gray;
-            font-size: 13px;
+.country {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
-            img {
-                width: 18px; // Сделали флаги стран более аккуратными
-                height: auto;
-            }
-        }
+  .ruFlag {
+    display: inline-block;
+    width: 18px;
+    height: 12px;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    background: linear-gradient(
+      to bottom,
+      #ffffff 0%,
+      #ffffff 33.33%,
+      #0039a6 33.33%,
+      #0039a6 66.66%,
+      #d52b1e 66.66%,
+      #d52b1e 100%
+    );
+  }
+}
     }
 
     .stars {
