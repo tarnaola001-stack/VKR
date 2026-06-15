@@ -1,9 +1,7 @@
-import { getCountryFlag } from '../../utils';
 import './Review.scss';
 
 const Review = (props) => {
   const { review } = props;
-  const country = getCountryFlag(review?.userID?.country);
 
   return (
     <div className="review">
@@ -16,15 +14,10 @@ const Review = (props) => {
         />
         <div className="info">
           <span>{review?.userID?.username}</span>
-          <div className="country">
-            {country?.normal && (
-              <img
-                src={country?.normal}
-                alt="flag"
-              />
-            )}
-            <span>{review?.userID?.country || 'Russia'}</span>
-          </div>
+      <div className="country">
+      <span style={{ fontSize: "14px", lineHeight: "1" }}>🇷🇺</span>
+      <span>Russia</span>
+      </div>
         </div>
       </div>
       <div className="stars">
